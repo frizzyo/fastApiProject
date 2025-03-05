@@ -10,7 +10,7 @@ hotels = [
 
 
 @app.get("/hotels")
-async def get_hotels(
+def get_hotels(
         id: int | None = Query(None, description="Hotel ID"),
         name: str | None = Query(None, description='Name of the hotel', title='Name of the hotel'),
 ):
@@ -25,12 +25,12 @@ async def get_hotels(
 
 
 @app.delete("/hotel/{id}")
-async def delete_hotel(id: int):
+def delete_hotel(id: int):
     hotel = [hotel for hotel in hotels if hotel["id"] != id]
     return {"status": "success", "data": hotel}
 
 @app.post("/hotels")
-async def create_hotel(
+def create_hotel(
         title: str = Body(embed=True, description='Name of the hotel', title='Name of the hotel'),
 ):
     hotels.append({
@@ -38,6 +38,34 @@ async def create_hotel(
         "name": title
     })
     return {"status": "success", "data": hotels}
+
+
+@app.put("/hotel/{id}")
+def update_hotel(
+        id: int,
+        title: str = Body(),
+        name: str = Body(),
+):
+    for hotel in hotels:
+        if hotel["id"] == id:
+            hotel["name"] = name
+            hotel["title"] = title
+            return {'status': 'success'}
+
+
+@app.patch("/hotel/{id}")
+def update_hotel(
+        id: int,
+        title: str | None = Body(None, embed=True),
+        name: str | None = Body(None, embed=True),
+):
+    for hotel in hotels:
+        if hotel["id"] == id:
+            if title:
+                hotel["title"] = title
+            if name:
+                hotel["name"] = name
+            return {'status': 'success'}
 
 
 if __name__ == "__main__":
