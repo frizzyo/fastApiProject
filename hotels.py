@@ -1,5 +1,5 @@
-import uvicorn
 from fastapi import APIRouter, Query, Body
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/hotels", tags=["Отели"])
 
@@ -8,6 +8,10 @@ hotels = [
     {"id": 2, 'title': 'Dubai', 'name': 'dubai'},
 ]
 
+
+class Hotel(BaseModel):
+    title: str
+    name: str
 
 @router.get("/", summary='Получение списка отелей')
 def get_hotels(
@@ -26,45 +30,43 @@ def get_hotels(
 
 @router.delete("/{id}", summary='Удаление отеля')
 def delete_hotel(id: int):
-    hotel = [hotel for hotel in hotels if hotel["id"] != id]
-    return {"status": "success", "data": hotel}
+    global hotels
+    hotels = [hotel for hotel in hotels if hotel["id"] != id]
+    return {"status": "success", "data": hotels}
+
 
 @router.post("/", summary='Добавление отеля')
-def create_hotel(
-        title: str = Body(embed=True, description='Name of the hotel', title='Name of the hotel'),
-):
+def create_hotel(hotel_data: Hotel):
     hotels.append({
         "id": hotels[-1]["id"] + 1,
-        "name": title
+        "title": hotel_data.title,
+        "name": hotel_data.name
+
     })
     return {"status": "success", "data": hotels}
 
 
-@router.put("/{id}", summary='Изменение отеля')
-def update_hotel(
-        id: int,
-        title: str = Body(),
-        name: str = Body(),
-):
+@router.put("/{hotel_id}", summary='Изменение отеля')
+def update_hotel(hotel_id: int, hotel_data: Hotel):
     for hotel in hotels:
-        if hotel["id"] == id:
-            hotel["name"] = name
-            hotel["title"] = title
-            return {'status': 'success'}
+        if hotel["id"] == hotel_id:
+            hotel["name"] = hotel_data.name
+            hotel["title"] = hotel_data.title
+            return {'status': 'success', 'data': hotels}
 
 
-@router.patch("/{id}",
-              summary='Частичное обновление даннхы об отеле',
+@router.patch("/{hotel_id}",
+              summary='Частичное обновление данных об отеле',
               description='Частичное обновление какого либо значения отеля: можно отправить и name, и title')
 def update_hotel(
-        id: int,
-        title: str | None = Body(None, embed=True),
-        name: str | None = Body(None, embed=True),
+        hotel_id: int,
+        title: str | Body(),
+        name: str | Body(),
 ):
     for hotel in hotels:
-        if hotel["id"] == id:
-            if title:
+        if hotel["id"] == hotel_id:
+            if title is not None:
                 hotel["title"] = title
-            if name:
+            if name is not None:
                 hotel["name"] = name
-            return {'status': 'success'}
+            return {'status': 'success', 'data': hotels}
