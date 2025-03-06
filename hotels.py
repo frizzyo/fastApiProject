@@ -60,8 +60,8 @@ def update_hotel(hotel_id: int, hotel_data: Hotel):
               description='Частичное обновление какого либо значения отеля: можно отправить и name, и title')
 def update_hotel(
         hotel_id: int,
-        title: str | Body(),
-        name: str | Body(),
+        title: str | None = Body(),
+        name: str | None = Body(),
 ):
     for hotel in hotels:
         if hotel["id"] == hotel_id:
