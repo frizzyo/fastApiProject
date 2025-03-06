@@ -4,8 +4,8 @@ from schemas.hotels import Hotel, HotelPatch
 router = APIRouter(prefix="/hotels", tags=["Отели"])
 
 hotels = [
-    {"id": 1, 'title': 'Sochi', 'name': 'sochi'},
-    {"id": 2, 'title': 'Dubai', 'name': 'dubai'},
+    {"id": 1, 'title': 'Сочи', 'name': 'sochi'},
+    {"id": 2, 'title': 'Дубай', 'name': 'dubai'},
 ]
 
 
@@ -32,7 +32,16 @@ def delete_hotel(id: int):
 
 
 @router.post("/", summary='Добавление отеля')
-def create_hotel(hotel_data: Hotel):
+def create_hotel(hotel_data: Hotel = Body(openapi_examples={
+    "1": {"summary": 'Москва', "value": {
+        "title": "Москва",
+        "name": "Moscow",
+    }},
+    "2": {"summary": 'Астана', "value": {
+        "title": "Астана",
+        "name": "Astana",
+    }},
+})):
     hotels.append({
         "id": hotels[-1]["id"] + 1,
         "title": hotel_data.title,
