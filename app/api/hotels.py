@@ -1,6 +1,4 @@
-from typing import Annotated
-
-from fastapi import APIRouter, Query, Body, Depends
+from fastapi import APIRouter, Query, Body
 from app.schemas.hotels import Hotel, HotelPatch
 from app.api.dependencies import PaginationDep
 
