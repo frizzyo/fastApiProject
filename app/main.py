@@ -8,7 +8,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 from app.api.hotels import router as hotels_router
 from app.config import settings
-
+from app.database import *
 app = FastAPI()
 
 app.include_router(hotels_router)
