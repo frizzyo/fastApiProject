@@ -15,4 +15,4 @@ app.include_router(hotels_router)
 
 
 if __name__ == "__main__":
-    uvicorn.run(app='main:router', reload=True)
+    uvicorn.run(app='app.main:app', reload=True)
