@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Query, Body
 from sqlalchemy import Insert, Select
-from sqlalchemy.sql.operators import ilike_op
+from sqlalchemy.sql.operators import ilike_op, contains
 
 from app.schemas.hotels import Hotel, HotelPatch
 from app.api.dependencies import PaginationDep
@@ -34,9 +34,14 @@ async def get_hotels(
     async with async_session_maker() as session:
         query = Select(HotelsOrm)
         if location:
-            query = query.filter(ilike_op(HotelsOrm.location, f'%{location}%'))
+            query = query.filter(ilike_op(HotelsOrm.location, f'%{location.strip()}%'))
         if title:
-            query = query.filter(ilike_op(HotelsOrm.title, f'%{title}%'))
+            query = query.filter(ilike_op(HotelsOrm.title, f'%{title.strip()}%'))
+        # Такое выполнится быстрее при большом количестве данных в таблице
+        # if location:
+        #     query = query.filter(func.lower(HotelsOrm.location).contains(location.strip().lower())))
+        # if title:
+        #     query = query.filter(func.lower(HotelsOrm.title).contains(title.strip().lower())))
         query = (
             query
             .limit(per_page)
