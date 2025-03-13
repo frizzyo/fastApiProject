@@ -7,6 +7,7 @@ from app.api.dependencies import PaginationDep
 from app.database import async_session_maker, engine
 from app.models.hotels import HotelsOrm
 from app.models.rooms import RoomsOrm
+from repos.hotels import HotelsRepos
 
 router = APIRouter(prefix="/hotels", tags=["Отели"])
 
@@ -32,25 +33,12 @@ async def get_hotels(
 ):
     per_page = pagination_params.per_page or 5
     async with async_session_maker() as session:
-        query = Select(HotelsOrm)
-        if location:
-            query = query.filter(ilike_op(HotelsOrm.location, f'%{location.strip()}%'))
-        if title:
-            query = query.filter(ilike_op(HotelsOrm.title, f'%{title.strip()}%'))
-        # Такое выполнится быстрее при большом количестве данных в таблице
-        # if location:
-        #     query = query.filter(func.lower(HotelsOrm.location).contains(location.strip().lower())))
-        # if title:
-        #     query = query.filter(func.lower(HotelsOrm.title).contains(title.strip().lower())))
-        query = (
-            query
-            .limit(per_page)
-            .offset(per_page * (pagination_params.page - 1))
+        return await HotelsRepos(session).get_all(
+            title=title,
+            location=location,
+            limit=per_page,
+            offset=per_page * (pagination_params.page - 1)
         )
-        result = await session.execute(query)
-        hotels_ = result.scalars().all()
-
-    return hotels_
 
 
 @router.delete("/{id}", summary='Удаление отеля')
@@ -72,11 +60,9 @@ async def create_hotel(hotel_data: Hotel = Body(openapi_examples={
     }},
 })):
     async with async_session_maker() as session:
-        add_hotel_stmt = Insert(HotelsOrm).values(**hotel_data.model_dump())
-        print(add_hotel_stmt.compile(engine, compile_kwargs={"literal_binds": True}))
-        await session.execute(add_hotel_stmt)
+        data = await HotelsRepos(session).add(**hotel_data.model_dump())
         await session.commit()
-    return {"status": "success"}
+    return {"status": "success", "data": data}
 
 
 @router.put("/{hotel_id}", summary='Изменение отеля')
