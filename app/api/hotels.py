@@ -60,7 +60,7 @@ async def create_hotel(hotel_data: Hotel = Body(openapi_examples={
     }},
 })):
     async with async_session_maker() as session:
-        data = await HotelsRepos(session).add(**hotel_data.model_dump())
+        data = await HotelsRepos(session).add(hotel_data)
         await session.commit()
     return {"status": "success", "data": data}
 
