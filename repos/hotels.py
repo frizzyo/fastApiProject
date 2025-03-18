@@ -27,6 +27,7 @@ class HotelsRepos(BaseRepository):
             query
             .limit(limit)
             .offset(offset)
+            .order_by('id')
         )
         result = await self.session.execute(query)
 

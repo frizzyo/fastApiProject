@@ -1,5 +1,9 @@
-from sqlalchemy import select, insert
+from sqlalchemy import select, insert, update, delete
+from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from pydantic import BaseModel
+
+
+
 
 
 class BaseRepository:
@@ -7,6 +11,16 @@ class BaseRepository:
 
     def __init__(self, session):
         self.session = session
+
+    async def _check_result(self, **filter_by):  ## проверка количества вернувшихся значений
+        query = select(self.model).filter_by(**filter_by)
+        qdata = await self.session.execute(query)
+        try:
+            qdata.scalars().one()
+        except NoResultFound as ex:
+            raise NoResultFound
+        except MultipleResultsFound as ex:
+            raise MultipleResultsFound
 
     async def get_all(self, *args, **kwargs):
         query = select(self.model)
@@ -22,3 +36,13 @@ class BaseRepository:
         query = insert(self.model).values(**data.model_dump()).returning(self.model)
         data = await self.session.execute(query)
         return data.scalars().one()
+
+    async def edit(self, data: BaseModel, **filter_by):
+        await self._check_result(**filter_by)
+        upd_query = update(self.model).filter_by(**filter_by).values(**data.model_dump())
+        await self.session.execute(upd_query)
+
+    async def delete(self, **filter_by):
+        await self._check_result(**filter_by)
+        del_query = delete(self.model).filter_by(**filter_by)
+        await self.session.execute(del_query)
