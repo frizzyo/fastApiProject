@@ -3,16 +3,18 @@ from sqlalchemy.sql.operators import ilike_op
 
 from repos.base import BaseRepository
 from app.models.hotels import HotelsOrm
+from app.schemas.hotels import Hotel
 
 
 class HotelsRepos(BaseRepository):
     model = HotelsOrm
+    schema = Hotel
 
     async def get_all(self,
                          title,
                          location,
                          limit,
-                         offset):
+                         offset) -> list[Hotel]:
         query = select(self.model)
         if location:
             query = query.filter(ilike_op(HotelsOrm.location, f'%{location.strip()}%'))
@@ -31,4 +33,4 @@ class HotelsRepos(BaseRepository):
         )
         result = await self.session.execute(query)
 
-        return result.scalars().all()
+        return [self.schema.model_validate(hotel) for hotel in result.scalars().all()]
