@@ -19,11 +19,6 @@ class BaseRepository:
         except MultipleResultsFound as ex:
             raise MultipleResultsFound
 
-    async def get_one(self, **kwargs):
-        query = select(self.model).filter_by(**kwargs)
-        result = await self.session.execute(query)
-        return result.scalars().one()
-
     async def get_all(self, *args, **kwargs):
         query = select(self.model)
         result = await self.session.execute(query)

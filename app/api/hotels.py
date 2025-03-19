@@ -12,13 +12,7 @@ router = APIRouter(prefix="/hotels", tags=["Отели"])
 @router.get("/{hotel_id}", summary="Получение 1 отеля по его id")
 async def get_hotel_by_id(hotel_id: int):
     async with async_session_maker() as session:
-        try:
-            return await HotelsRepos(session).get_one(id=hotel_id)
-        except NoResultFound:
-            raise HTTPException(status_code=404, detail="id такого отеля отсутсвует")
-        except MultipleResultsFound:
-            raise HTTPException(status_code=400, detail="Несколько записей для такого id")
-
+        return await HotelsRepos(session).get_one_or_none(id=hotel_id)
 
 @router.get("/", summary='Получение списка отелей')
 async def get_hotels(
