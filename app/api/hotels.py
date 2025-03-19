@@ -1,16 +1,23 @@
 from fastapi import APIRouter, Query, Body, HTTPException
-from sqlalchemy import Insert, Select
-from sqlalchemy.sql.operators import ilike_op, contains
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 
 from app.schemas.hotels import Hotel, HotelPatch
 from app.api.dependencies import PaginationDep
-from app.database import async_session_maker, engine
-from app.models.hotels import HotelsOrm
-from app.models.rooms import RoomsOrm
+from app.database import async_session_maker
 from repos.hotels import HotelsRepos
 
 router = APIRouter(prefix="/hotels", tags=["Отели"])
+
+
+@router.get("/{hotel_id}", summary="Получение 1 отеля по его id")
+async def get_hotel_by_id(hotel_id: int):
+    async with async_session_maker() as session:
+        try:
+            return await HotelsRepos(session).get_one(id=hotel_id)
+        except NoResultFound:
+            raise HTTPException(status_code=404, detail="id такого отеля отсутсвует")
+        except MultipleResultsFound:
+            raise HTTPException(status_code=400, detail="Несколько записей для такого id")
 
 
 @router.get("/", summary='Получение списка отелей')
@@ -60,7 +67,7 @@ async def create_hotel(hotel_data: Hotel = Body(openapi_examples={
 
 
 @router.put("/{hotel_id}", summary='Изменение отеля')
-async def update_hotel(hotel_id: int, hotel_data: Hotel):
+async def edit_hotel(hotel_id: int, hotel_data: Hotel):
     async with async_session_maker() as session:
         try:
             await HotelsRepos(session).edit(hotel_data, id=hotel_id)
@@ -72,14 +79,16 @@ async def update_hotel(hotel_id: int, hotel_data: Hotel):
     return {'status': 'success'}
 
 
-# @router.patch("/{hotel_id}",
-#               summary='Частичное обновление данных об отеле',
-#               description='Частичное обновление какого либо значения отеля: можно отправить и name, и title')
-# def update_hotel(hotel_id: int, hotel_data: HotelPatch):
-#     for hotel in hotels:
-#         if hotel["id"] == hotel_id:
-#             if hotel_data.title is not None:
-#                 hotel["title"] = hotel_data.title
-#             if hotel_data.name is not None:
-#                 hotel["name"] = hotel_data.name
-#             return {'status': 'success', 'data': hotels}
+@router.patch("/{hotel_id}",
+              summary='Частичное обновление данных об отеле',
+              description='Частичное обновление какого либо значения отеля: можно отправить и name, и title')
+async def update_hotel(hotel_id: int, hotel_data: HotelPatch):
+    async with async_session_maker() as session:
+        try:
+            data = await HotelsRepos(session).edit(hotel_data, exclude_unset=True, id=hotel_id)
+            await session.commit()
+        except NoResultFound:
+            raise HTTPException(status_code=404, detail="id такого отеля отсутсвует")
+        except MultipleResultsFound:
+            raise HTTPException(status_code=400, detail="Несколько записей для такого id")
+    return {'status': 'success', 'data': data}

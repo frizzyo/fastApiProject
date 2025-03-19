@@ -3,9 +3,6 @@ from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from pydantic import BaseModel
 
 
-
-
-
 class BaseRepository:
     model = None
 
@@ -22,6 +19,11 @@ class BaseRepository:
         except MultipleResultsFound as ex:
             raise MultipleResultsFound
 
+    async def get_one(self, **kwargs):
+        query = select(self.model).filter_by(**kwargs)
+        result = await self.session.execute(query)
+        return result.scalars().one()
+
     async def get_all(self, *args, **kwargs):
         query = select(self.model)
         result = await self.session.execute(query)
@@ -37,9 +39,11 @@ class BaseRepository:
         data = await self.session.execute(query)
         return data.scalars().one()
 
-    async def edit(self, data: BaseModel, **filter_by):
+    async def edit(self, data: BaseModel, exclude_unset: bool = False,**filter_by):
         await self._check_result(**filter_by)
-        upd_query = update(self.model).filter_by(**filter_by).values(**data.model_dump())
+        upd_query = (update(self.model)
+                     .filter_by(**filter_by)
+                     .values(**data.model_dump(exclude_unset=exclude_unset)))
         await self.session.execute(upd_query)
 
     async def delete(self, **filter_by):
