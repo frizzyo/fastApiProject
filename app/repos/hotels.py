@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.sql.operators import ilike_op
 
-from repos.base import BaseRepository
+from app.repos.base import BaseRepository
 from app.models.hotels import HotelsOrm
 from app.schemas.hotels import Hotel
 

@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Query, Body, HTTPException
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 
-from app.schemas.hotels import Hotel, HotelPatch, HotelAdd
+from app.schemas.hotels import HotelPatch, HotelAdd
 from app.api.dependencies import PaginationDep
 from app.database import async_session_maker
-from repos.hotels import HotelsRepos
+from app.repos.hotels import HotelsRepos
 
 router = APIRouter(prefix="/hotels", tags=["Отели"])
 

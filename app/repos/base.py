@@ -1,5 +1,6 @@
 from sqlalchemy import select, insert, update, delete
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
+from sqlalchemy.exc import IntegrityError
 from pydantic import BaseModel
 
 

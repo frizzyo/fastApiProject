@@ -1,16 +1,17 @@
 import uvicorn
 from fastapi import FastAPI
-
 import sys
 from pathlib import Path
 
-sys.path.append(str(Path(__file__).parent.parent))
 
 from app.api.hotels import router as hotels_router
-from app.config import settings
-from app.database import *
+from app.api.auth import router as auth_router
+
+sys.path.append(str(Path(__file__).parent.parent))
 app = FastAPI()
 
+
+app.include_router(auth_router)
 app.include_router(hotels_router)
 
 
