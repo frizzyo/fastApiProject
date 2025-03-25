@@ -5,6 +5,7 @@ from app.schemas.hotels import HotelPatch, HotelAdd
 from app.api.dependencies import PaginationDep
 from app.database import async_session_maker
 from app.repos.hotels import HotelsRepos
+from app.exceptions import NotFound, MultipleResult
 
 router = APIRouter(prefix="/hotels", tags=["Отели"])
 
@@ -37,10 +38,10 @@ async def delete_hotel(hotel_id: int):
         try:
             await HotelsRepos(session).delete(id=hotel_id)
             await session.commit()
-        except NoResultFound:
-            raise HTTPException(status_code=404, detail="id такого отеля отсутсвует")
-        except MultipleResultsFound:
-            raise HTTPException(status_code=400, detail="Несколько записей для такого id")
+        except NotFound:
+            raise HTTPException(status_code=404, detail="Нет записи для такого id")
+        except MultipleResult:
+            raise HTTPException(status_code=400, detail="Найдено более одной записи для такого id")
     return {"status": "success"}
 
 
@@ -67,10 +68,10 @@ async def edit_hotel(hotel_id: int, hotel_data: HotelAdd):
         try:
             await HotelsRepos(session).edit(hotel_data, id=hotel_id)
             await session.commit()
-        except NoResultFound:
-            raise HTTPException(status_code=404, detail="id такого отеля отсутсвует")
-        except MultipleResultsFound:
-            raise HTTPException(status_code=400, detail="Несколько записей для такого id")
+        except NotFound:
+            raise HTTPException(status_code=404, detail="Нет записи для такого id")
+        except MultipleResult:
+            raise HTTPException(status_code=400, detail="Найдено более одной записи для такого id")
     return {'status': 'success'}
 
 
@@ -82,8 +83,8 @@ async def update_hotel(hotel_id: int, hotel_data: HotelPatch):
         try:
             await HotelsRepos(session).edit(hotel_data, exclude_unset=True, id=hotel_id)
             await session.commit()
-        except NoResultFound:
-            raise HTTPException(status_code=404, detail="id такого отеля отсутсвует")
-        except MultipleResultsFound:
-            raise HTTPException(status_code=400, detail="Несколько записей для такого id")
+        except NotFound:
+            raise HTTPException(status_code=404, detail="Нет записи для такого id")
+        except MultipleResult:
+            raise HTTPException(status_code=400, detail="Найдено более одной записи для такого id")
     return {'status': 'success'}

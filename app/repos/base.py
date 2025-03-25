@@ -1,7 +1,8 @@
 from sqlalchemy import select, insert, update, delete
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
-from sqlalchemy.exc import IntegrityError
 from pydantic import BaseModel
+
+from app.exceptions import NotFound, MultipleResult
 
 
 class BaseRepository:
@@ -16,10 +17,10 @@ class BaseRepository:
         qdata = await self.session.execute(query)
         try:
             qdata.scalars().one()
-        except NoResultFound as ex:
-            raise NoResultFound
-        except MultipleResultsFound as ex:
-            raise MultipleResultsFound
+        except NoResultFound:
+            raise NotFound
+        except MultipleResultsFound:
+            raise MultipleResult
 
     async def get_all(self, *args, **kwargs) -> list[BaseModel]:
         query = select(self.model)
