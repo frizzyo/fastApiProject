@@ -15,7 +15,7 @@ class UserRepos(BaseRepository):
         try:
             await super().add(data)
         except IntegrityError:
-            raise ValueError(f"Пользователь с таким email - {data.email} уже существуют")
+            raise ValueError(f"Пользователь с таким email - ({data.email}) уже существуют")
 
     async def get_user_with_hashed_password(self, email: EmailStr) -> UserWithHashedPassword | None:
         query = select(self.model).filter_by(email=email)
