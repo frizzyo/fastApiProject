@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Query, Body, HTTPException
-from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 
 from app.schemas.hotels import HotelPatch, HotelAdd
 from app.api.dependencies import PaginationDep

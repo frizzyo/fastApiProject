@@ -11,10 +11,10 @@ class HotelsRepos(BaseRepository):
     schema = Hotel
 
     async def get_all(self,
-                         title,
-                         location,
-                         limit,
-                         offset) -> list[Hotel]:
+                      title,
+                      location,
+                      limit,
+                      offset) -> list[Hotel]:
         query = select(self.model)
         if location:
             query = query.filter(ilike_op(HotelsOrm.location, f'%{location.strip()}%'))
