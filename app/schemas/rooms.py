@@ -8,11 +8,15 @@ class RoomAttributes(BaseModel):
 
 
 class RoomAdd(RoomAttributes):
+    hotel_id: int
+    title: str
+
+
+class RoomAddRequest(RoomAttributes):
     title: str
 
 
 class Room(RoomAdd):
-    hotel_id: int
     id: int
 
     model_config = ConfigDict(from_attributes=True)
