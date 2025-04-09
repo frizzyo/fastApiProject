@@ -1,5 +1,4 @@
-from pydantic import BaseModel
-from sqlalchemy import select, insert
+from sqlalchemy import select
 from sqlalchemy.sql.operators import ilike_op
 
 from app.repos.base import BaseRepository
