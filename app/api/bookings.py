@@ -8,6 +8,17 @@ from app.services.auth import AuthService
 router = APIRouter(prefix="/bookings", tags=["Бронирование"])
 
 
+@router.get("/", summary="Все бронирования")
+async def get_bookings(db: DBDep):
+    return await db.bookings.get_all()
+
+
+@router.get("/me", summary="Все бронирования пользователя")
+async def get_bookings_filtered(db: DBDep,
+                                user_id: UserIdDep):
+    return await db.bookings.get_filtered(user_id=user_id)
+
+
 @router.post("/", summary='Добавление бронирования')
 async def create_booking(db: DBDep,
                          user_id: UserIdDep,
@@ -20,14 +31,3 @@ async def create_booking(db: DBDep,
     data = await db.bookings.add(_booking_data)
     await db.commit()
     return {"status": "success", "data": data}
-
-
-@router.get("/", summary="Все бронирования")
-async def bookings_all(db: DBDep):
-    return await db.bookings.get_all()
-
-
-@router.get("/me", summary="Все бронирования пользователя")
-async def bookings_filtered(db:DBDep,
-                            user_id: UserIdDep):
-    return await db.bookings.get_filtered(user_id=user_id)

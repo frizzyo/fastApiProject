@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Response, Request
 
 from app.api.dependencies import UserIdDep, DBDep
-from app.schemas.users import UserRequestAdd, UserAdd
+from app.schemas.users import UserRequestAdd, UserAdd, UserLogin
 from app.services.auth import AuthService
 
 router = APIRouter(prefix="/auth", tags=["Аутентификация и авторизация"])
@@ -24,7 +24,7 @@ async def register_user(
 
 @router.post("/login")
 async def login_user(
-        data: UserRequestAdd,
+        data: UserLogin,
         response: Response,
         db: DBDep
 ):

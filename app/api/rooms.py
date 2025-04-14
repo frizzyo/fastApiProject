@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi import APIRouter, Query, Body, HTTPException
 
 from app.api.dependencies import DBDep
@@ -7,7 +9,7 @@ from app.exceptions import NotFound, MultipleResult
 router = APIRouter(prefix="/hotels/{hotel_id}/rooms", tags=["Номера"])
 
 
-@router.get("/rooms/{room_id}", summary="Получение 1 номера по его id")
+@router.get("/{room_id}", summary="Получение 1 номера по его id")
 async def get_room_by_id(hotel_id: int,
                          room_id: int,
                          db: DBDep):
@@ -18,11 +20,13 @@ async def get_room_by_id(hotel_id: int,
 async def get_rooms(
         db: DBDep,
         hotel_id: int,
-        title: str | None = Query(None)
+        date_from: date,
+        date_to: date,
 ):
-    return await db.rooms.get_all(
-        title=title,
-        hotel_id=hotel_id
+    return await db.rooms.get_filtered_by_time(
+        hotel_id=hotel_id,
+        date_from=date_from,
+        date_to=date_to,
     )
 
 

@@ -12,6 +12,11 @@ class UserRequestAdd(UserInfo):
     password: str
 
 
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+
 class UserAdd(UserInfo):
     hashed_password: str
 

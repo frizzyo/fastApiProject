@@ -23,7 +23,9 @@ class BaseRepository:
             raise MultipleResult
 
     async def get_filtered(self, *args, **kwargs) -> list[BaseModel]:
-        query = select(self.model).filter_by(**kwargs)
+        query = (select(self.model)
+                 .filter(*args)
+                 .filter_by(**kwargs))
         result = await self.session.execute(query)
         return [self.schema.model_validate(model) for model in result.scalars().all()]
 
