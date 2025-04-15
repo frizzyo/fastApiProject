@@ -29,7 +29,7 @@ class HotelsRepos(BaseRepository):
             .select_from(RoomsOrm)
             .filter(RoomsOrm.id.in_(rooms_id))
         )
-        query = select(self.model)
+        query = select(self.model).filter(HotelsOrm.id.in_(hotels_id))
         if title:
             query = query.filter(ilike_op(HotelsOrm.title, f'%{title.strip()}%'))
         if location:
