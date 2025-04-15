@@ -1,8 +1,12 @@
+from datetime import date
+
 from sqlalchemy import select
 from sqlalchemy.sql.operators import ilike_op
 
+from app.models.rooms import RoomsOrm
 from app.repos.base import BaseRepository
 from app.models.hotels import HotelsOrm
+from app.repos.utils import rooms_ids_for_booking
 from app.schemas.hotels import Hotel
 
 
@@ -10,21 +14,26 @@ class HotelsRepos(BaseRepository):
     model = HotelsOrm
     schema = Hotel
 
-    async def get_all(self,
-                      title,
-                      location,
-                      limit,
-                      offset) -> list[Hotel]:
+    async def get_filtered_by_time(self,
+                                   date_from: date,
+                                   date_to: date,
+                                   limit: int,
+                                   offset: int,
+                                   title: str,
+                                   location: str
+                                   ):
+        rooms_id = rooms_ids_for_booking(date_from, date_to)
+
+        hotels_id = (
+            select(RoomsOrm.hotel_id)
+            .select_from(RoomsOrm)
+            .filter(RoomsOrm.id.in_(rooms_id))
+        )
         query = select(self.model)
-        if location:
-            query = query.filter(ilike_op(HotelsOrm.location, f'%{location.strip()}%'))
         if title:
             query = query.filter(ilike_op(HotelsOrm.title, f'%{title.strip()}%'))
-        # Такое выполнится быстрее при большом количестве данных в таблице
-        # if location:
-        #     query = query.filter(func.lower(HotelsOrm.location).contains(location.strip().lower())))
-        # if title:
-        #     query = query.filter(func.lower(HotelsOrm.title).contains(title.strip().lower())))
+        if location:
+            query = query.filter(ilike_op(HotelsOrm.location, f'%{location.strip()}%'))
         query = (
             query
             .limit(limit)

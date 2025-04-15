@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi import APIRouter, Query, Body, HTTPException
 
 from app.schemas.hotels import HotelPatch, HotelAdd
@@ -17,16 +19,25 @@ async def get_hotel_by_id(hotel_id: int,
 async def get_hotels(
         db: DBDep,
         pagination_params: PaginationDep,
+        date_from: date,
+        date_to: date,
         title: str | None = Query(None, description='Name of the hotel'),
         location: str | None = Query(None, description='Location of the hotel'),
 ):
     per_page = pagination_params.per_page or 5
-    return await db.hotel.get_all(
-        title=title,
-        location=location,
-        limit=per_page,
-        offset=per_page * (pagination_params.page - 1)
-    )
+    # return await db.hotel.get_all(
+    #     title=title,
+    #     location=location,
+    #     limit=per_page,
+    #     offset=per_page * (pagination_params.page - 1)
+    # )
+    return await db.hotel.get_filtered_by_time(date_from=date_from,
+                                               date_to=date_to,
+                                               title=title,
+                                               location=location,
+                                               limit=per_page,
+                                               offset=per_page * (pagination_params.page - 1)
+                                               )
 
 
 @router.delete("/{hotel_id}", summary='Удаление отеля')
