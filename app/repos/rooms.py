@@ -1,8 +1,7 @@
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.sql.operators import ilike_op
 
 from app.database import engine
-from app.models.bookings import BookingsOrm
 from app.repos.base import BaseRepository
 from app.models.rooms import RoomsOrm
 from app.repos.utils import rooms_ids_for_booking
