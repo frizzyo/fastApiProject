@@ -50,14 +50,15 @@ class BaseRepository:
         query = insert(self.model).values([item.model_dump() for item in data])
         await self.session.execute(query)
 
-    async def edit(self, data: BaseModel, exclude_unset: bool = False,**filter_by):
+    async def edit(self, data: BaseModel, exclude_unset: bool = False, **filter_by):
         await self._check_result(**filter_by)
         upd_query = (update(self.model)
                      .filter_by(**filter_by)
-                     .values(**data.model_dump(exclude_unset=exclude_unset)))
-        await self.session.execute(upd_query)
+                     .values(**data.model_dump(exclude_unset=exclude_unset))).returning(self.model)
+        data = await self.session.execute(upd_query)
+        return self.schema.model_validate(data.scalars().one())
 
-    async def delete(self, **filter_by):
-        await self._check_result(**filter_by)
-        del_query = delete(self.model).filter_by(**filter_by)
+    async def delete(self, *args, **kwargs):
+        # await self._check_result(**kwargs)
+        del_query = delete(self.model).filter(*args).filter_by(**kwargs)
         await self.session.execute(del_query)
