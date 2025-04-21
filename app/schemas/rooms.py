@@ -14,6 +14,7 @@ class RoomAdd(RoomAttributes):
 
 class RoomAddRequest(RoomAttributes):
     title: str
+    facilities_ids: list[int] | None = None
 
 
 class Room(RoomAdd):
