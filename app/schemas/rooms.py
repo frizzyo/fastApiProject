@@ -14,7 +14,7 @@ class RoomAdd(RoomAttributes):
 
 class RoomAddRequest(RoomAttributes):
     title: str
-    facilities_ids: list[int] | None = None
+    facilities_ids: list[int] = []
 
 
 class Room(RoomAdd):
@@ -31,4 +31,4 @@ class RoomPatch(BaseModel):
 
 
 class RoomPatchRequest(RoomPatch):
-    facilities_ids: list[int] | None = None
+    facilities_ids: list[int] = []
