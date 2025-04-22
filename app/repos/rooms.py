@@ -1,11 +1,12 @@
 from sqlalchemy import select
 from sqlalchemy.sql.operators import ilike_op
+from sqlalchemy.orm import selectinload, joinedload
 
 from app.database import engine
 from app.repos.base import BaseRepository
 from app.models.rooms import RoomsOrm
 from app.repos.utils import rooms_ids_for_booking
-from app.schemas.rooms import Room
+from app.schemas.rooms import Room, RoomWithRels
 
 
 class RoomsRepos(BaseRepository):
@@ -28,4 +29,20 @@ class RoomsRepos(BaseRepository):
         rooms_id = rooms_ids_for_booking(date_from, date_to, hotel_id)
         # print(rooms_id.compile(bind=engine, compile_kwargs={"literal_binds": True}))
 
-        return await self.get_filtered(RoomsOrm.id.in_(rooms_id))
+        query = (
+            select(self.model)
+            .options(selectinload(self.model.facilities))
+            .filter(RoomsOrm.id.in_(rooms_id))
+        )
+        result = await self.session.execute(query)
+        return [RoomWithRels.model_validate(model) for model in result.scalars().all()]
+
+    async def get_one_or_none(self, **filter_by):
+        query = (select(self.model)
+                 .options(selectinload(self.model.facilities))
+                 .filter_by(**filter_by))
+        result = await self.session.execute(query)
+        model = result.scalars().one_or_none()
+        if model is None:
+            return None
+        return RoomWithRels.model_validate(model)
