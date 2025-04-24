@@ -6,13 +6,13 @@ from sqlalchemy.sql.operators import ilike_op
 from app.models.rooms import RoomsOrm
 from app.repos.base import BaseRepository
 from app.models.hotels import HotelsOrm
+from app.repos.mappers.mappers import HotelDataMapper
 from app.repos.utils import rooms_ids_for_booking
-from app.schemas.hotels import Hotel
 
 
 class HotelsRepos(BaseRepository):
     model = HotelsOrm
-    schema = Hotel
+    mapper = HotelDataMapper
 
     async def get_filtered_by_time(self,
                                    date_from: date,
@@ -42,4 +42,4 @@ class HotelsRepos(BaseRepository):
         )
         result = await self.session.execute(query)
 
-        return [self.schema.model_validate(hotel) for hotel in result.scalars().all()]
+        return [self.mapper.map_to_domain_entity(hotel) for hotel in result.scalars().all()]

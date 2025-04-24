@@ -1,17 +1,18 @@
 from sqlalchemy import select
 from sqlalchemy.sql.operators import ilike_op
-from sqlalchemy.orm import selectinload, joinedload
+from sqlalchemy.orm import selectinload
 
 from app.database import engine
 from app.repos.base import BaseRepository
 from app.models.rooms import RoomsOrm
+from app.repos.mappers.mappers import RoomsDataMapper
 from app.repos.utils import rooms_ids_for_booking
 from app.schemas.rooms import Room, RoomWithRels
 
 
 class RoomsRepos(BaseRepository):
     model = RoomsOrm
-    schema = Room
+    mapper = RoomsDataMapper
 
     async def get_all(self,
                       title,
@@ -20,7 +21,7 @@ class RoomsRepos(BaseRepository):
         if title:
             query = query.filter(ilike_op(RoomsOrm.title, f"%{title.strip()}%"))
         result = await self.session.execute(query)
-        return [self.schema.model_validate(hotel) for hotel in result.scalars().all()]
+        return [self.mapper.map_to_domain_entity(hotel) for hotel in result.scalars().all()]
 
     async def get_filtered_by_time(self,
                                    hotel_id,

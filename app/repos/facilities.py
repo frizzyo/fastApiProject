@@ -2,27 +2,21 @@ from sqlalchemy import select, delete, insert
 
 from app.repos.base import BaseRepository
 from app.models.facilities import FacilitiesOrm, RoomsFacilitiesOrm
-from app.schemas.facilities import Facilities, RoomsFacilities, RoomsFacilitiesAdd
+from app.repos.mappers.mappers import FacilitiesDataMapper, RoomsFacilitiesDataMapper
 
 
 class FacilitiesRepos(BaseRepository):
     model = FacilitiesOrm
-    schema = Facilities
+    mapper = FacilitiesDataMapper
 
 
 class RoomFacilitiesRepos(BaseRepository):
     model = RoomsFacilitiesOrm
-    schema = RoomsFacilities
-
-    async def update(self,
-                     room_id: int,
-                     data):
-        await self.delete(room_id=room_id)
-        await self.add_bulk(data)
+    mapper = RoomsFacilitiesDataMapper
 
     async def set_room_facilities(self,
                                   room_id: int,
-                                  facilities_ids: list[int]):
+                                  facilities_ids: list[int]) -> None:
         query = (
             select(self.model.facilities_id).filter_by(room_id=room_id)
         )

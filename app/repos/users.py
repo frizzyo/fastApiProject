@@ -4,12 +4,13 @@ from pydantic import EmailStr
 
 from app.repos.base import BaseRepository
 from app.models.users import UsersOrm
-from app.schemas.users import User, UserAdd, UserWithHashedPassword
+from app.repos.mappers.mappers import UsersDataMapper
+from app.schemas.users import UserAdd, UserWithHashedPassword
 
 
 class UserRepos(BaseRepository):
     model = UsersOrm
-    schema = User
+    mapper = UsersDataMapper
 
     async def add(self, data: UserAdd):
         try:
