@@ -8,8 +8,6 @@ class FacilitiesAdd(BaseModel):
 class Facilities(FacilitiesAdd):
     id: int
 
-    model_config = ConfigDict(from_attributes=True)
-
 
 class RoomsFacilitiesAdd(BaseModel):
     room_id: int
@@ -18,5 +16,3 @@ class RoomsFacilitiesAdd(BaseModel):
 
 class RoomsFacilities(RoomsFacilitiesAdd):
     id: int
-
-    model_config = ConfigDict(from_attributes=True)

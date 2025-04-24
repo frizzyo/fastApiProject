@@ -22,8 +22,6 @@ class RoomAddRequest(RoomAttributes):
 class Room(RoomAdd):
     id: int
 
-    model_config = ConfigDict(from_attributes=True)
-
 
 class RoomWithRels(Room):
     facilities: list[Facilities]

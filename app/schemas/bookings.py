@@ -16,5 +16,3 @@ class BookingAdd(BookingRequest):
 
 class Booking(BookingAdd):
     id: int
-
-    model_config = ConfigDict(from_attributes=True)
