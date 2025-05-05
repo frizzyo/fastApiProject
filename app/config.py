@@ -9,6 +9,10 @@ class Settings(BaseSettings):
     DB_NAME: str
     DB_USER: str
     DB_PASS: str
+
+    REDIS_HOST: str = '127.0.0.1'
+    REDIS_PORT: int = 6379
+
     SECRET_KEY: str
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int

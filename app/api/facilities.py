@@ -1,13 +1,14 @@
 from fastapi import APIRouter
+from fastapi_cache.decorator import cache
 
 from app.schemas.facilities import FacilitiesAdd, Facilities
 from app.api.dependencies import DBDep
-from app.exceptions import NotFound, MultipleResult
 
 router = APIRouter(prefix="/facilities", tags=["Интересы"])
 
 
 @router.get("/", summary="Все интересы")
+@cache(expire=30)
 async def get_facilities(db: DBDep):
     return await db.facilities.get_all()
 
