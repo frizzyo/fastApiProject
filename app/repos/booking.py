@@ -11,7 +11,7 @@ class BookingsRepos(BaseRepository):
     model = BookingsOrm
     mapper = BookingDataMapper
 
-    async def get_booking_with_today_chekin(self):
+    async def get_booking_with_today_checkin(self):
         query = (
             select(BookingsOrm)
             .filter(BookingsOrm.date_from==date.today())
