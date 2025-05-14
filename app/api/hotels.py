@@ -13,7 +13,7 @@ router = APIRouter(prefix="/hotels", tags=["Отели"])
 @router.get("/{hotel_id}", summary="Получение 1 отеля по его id")
 async def get_hotel_by_id(hotel_id: int,
                           db: DBDep):
-    return await db.hotel.get_one_or_none(id=hotel_id)
+    return await db.hotels.get_one_or_none(id=hotel_id)
 
 
 @router.get("/", summary='Получение списка отелей')
@@ -27,13 +27,13 @@ async def get_hotels(
         location: str | None = Query(None, description='Location of the hotel'),
 ):
     per_page = pagination_params.per_page or 5
-    # return await db.hotel.get_all(
+    # return await db.hotels.get_all(
     #     title=title,
     #     location=location,
     #     limit=per_page,
     #     offset=per_page * (pagination_params.page - 1)
     # )
-    return await db.hotel.get_filtered_by_time(date_from=date_from,
+    return await db.hotels.get_filtered_by_time(date_from=date_from,
                                                date_to=date_to,
                                                title=title,
                                                location=location,
@@ -46,7 +46,7 @@ async def get_hotels(
 async def delete_hotel(hotel_id: int,
                        db: DBDep):
     try:
-        await db.hotel.delete(id=hotel_id)
+        await db.hotels.delete(id=hotel_id)
         await db.commit()
     except NotFound:
         raise HTTPException(status_code=404, detail="Нет записи для такого id")
@@ -66,7 +66,7 @@ async def create_hotel(db: DBDep, hotel_data: HotelAdd = Body(openapi_examples={
         "location": "Астана, Ул. Пушкина, д. Колотушкина",
     }},
 })):
-    data = await db.hotel.add(hotel_data)
+    data = await db.hotels.add(hotel_data)
     await db.commit()
     return {"status": "success", "data": data}
 
@@ -76,7 +76,7 @@ async def edit_hotel(hotel_id: int,
                      hotel_data: HotelAdd,
                      db: DBDep):
     try:
-        await db.hotel.edit(hotel_data, id=hotel_id)
+        await db.hotels.edit(hotel_data, id=hotel_id)
         await db.commit()
     except NotFound:
         raise HTTPException(status_code=404, detail="Нет записи для такого id")
@@ -92,7 +92,7 @@ async def update_hotel(hotel_id: int,
                        hotel_data: HotelPatch,
                        db: DBDep):
     try:
-        await db.hotel.edit(hotel_data, exclude_unset=True, id=hotel_id)
+        await db.hotels.edit(hotel_data, exclude_unset=True, id=hotel_id)
         await db.commit()
     except NotFound:
         raise HTTPException(status_code=404, detail="Нет записи для такого id")
