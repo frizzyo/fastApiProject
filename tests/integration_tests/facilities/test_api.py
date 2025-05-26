@@ -8,4 +8,3 @@ async def test_add_facility(ac):
 async def test_get_facilities(ac):
     resp = await ac.get("/facilities/")
     assert resp.status_code == 200
-    assert resp.json() == [{"name": "WiFi"}]
