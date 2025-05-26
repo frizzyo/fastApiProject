@@ -69,3 +69,12 @@ async def fill_database(create_database, ac):
         "email": "kot@pec.com",
         "password": "kotopec"
     })
+
+
+@pytest.fixture(scope="session", autouse=True)
+async def authenticated_ac(fill_database, ac):
+    token = await ac.post("/auth/login", json={"email": "kot@pec.com", "password": "kotopec"})
+    assert token.json()
+    me = await ac.get("/auth/me", cookies={"access_token": token.json()["access_token"]})
+    assert me.json()["data"]["email"] == "kot@pec.com"
+    yield token
