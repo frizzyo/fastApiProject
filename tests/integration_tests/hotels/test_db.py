@@ -1,10 +1,7 @@
-from app.database import async_session_maker_null_pool
 from app.schemas.hotels import HotelAdd
-from app.utils.db_manager import DBManager
 
 
-async def test_add_hotel():
+async def test_add_hotel(db):
     hotel_data = HotelAdd(title="Hotel", location="San Francisco, CA")
-    async with DBManager(session_factory=async_session_maker_null_pool) as db:
-        new_hotel_data = await db.hotels.add(hotel_data)
-        await db.commit()
+    new_hotel_data = await db.hotels.add(hotel_data)
+    await db.commit()

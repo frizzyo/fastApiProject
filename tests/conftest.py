@@ -13,10 +13,19 @@ from app.schemas.rooms import RoomAdd
 from app.utils.db_manager import DBManager
 
 
-@pytest.fixture(scope="session", autouse=True)
-async def create_database():
+@pytest.fixture(scope="function")
+async def db() -> DBManager:
+    async with DBManager(session_factory=async_session_maker_null_pool) as db:
+        yield db
+
+
+@pytest.fixture(scope="session")
+async def check_mode():
     assert settings.MODE == "TEST"
 
+
+@pytest.fixture(scope="session", autouse=True)
+async def create_database(check_mode):
     async with engine_null_pool.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
@@ -29,18 +38,23 @@ async def create_database():
         rooms_data = json.load(file)
     rooms = [RoomAdd.model_validate(room) for room in rooms_data]
 
-    async with DBManager(session_factory=async_session_maker_null_pool) as db:
-        await db.hotels.add_bulk(hotels)
-        await db.rooms.add_bulk(rooms)
-        await db.commit()
+    async with DBManager(session_factory=async_session_maker_null_pool) as _db:
+        await _db.hotels.add_bulk(hotels)
+        await _db.rooms.add_bulk(rooms)
+        await _db.commit()
 
 
-@pytest.fixture(scope="session", autouse=True)
-async def fill_database(create_database):
+@pytest.fixture(scope="session")
+async def ac() -> AsyncClient:
     async with AsyncClient(
             transport=ASGITransport(app=app),
             base_url="http://test") as ac:
-        await ac.post("/auth/register", json={
-            "email": "kot@pec.com",
-            "password": "kotopec"
-        })
+        yield ac
+
+
+@pytest.fixture(scope="session", autouse=True)
+async def fill_database(create_database, ac):
+    await ac.post("/auth/register", json={
+        "email": "kot@pec.com",
+        "password": "kotopec"
+    })

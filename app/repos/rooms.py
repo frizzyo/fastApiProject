@@ -14,9 +14,9 @@ class RoomsRepos(BaseRepository):
     model = RoomsOrm
     mapper = RoomsDataMapper
 
-    async def get_all(self,
-                      title,
-                      hotel_id) -> list[Room]:
+    async def get_hotel_filtered(self,
+                                 title,
+                                 hotel_id) -> list[Room]:
         query = select(self.model).filter(RoomsOrm.hotel_id == hotel_id)
         if title:
             query = query.filter(ilike_op(RoomsOrm.title, f"%{title.strip()}%"))
