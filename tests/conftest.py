@@ -14,15 +14,16 @@ from app.schemas.rooms import RoomAdd
 from app.utils.db_manager import DBManager
 
 
-@pytest.fixture(scope="function")
-async def db() -> DBManager:
-    async with DBManager(session_factory=async_session_maker_null_pool) as db:
-        yield db
-
-
 async def get_db_null_pool():
     async with DBManager(session_factory=async_session_maker_null_pool) as db:
         yield db
+
+
+@pytest.fixture(scope="function")
+async def db() -> DBManager:
+    async for db in get_db_null_pool():
+        yield db
+
 
 app.dependency_overrides[get_db] = get_db_null_pool
 
