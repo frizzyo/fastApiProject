@@ -1,5 +1,6 @@
 from datetime import date
 
+from fastapi import HTTPException
 from sqlalchemy import select, insert
 
 from app.repos.base import BaseRepository
@@ -30,6 +31,6 @@ class BookingsRepos(BaseRepository):
         rooms_ids_to_book_res = await self.session.execute(rooms_ids_to_get)
         rooms_ids_to_book = rooms_ids_to_book_res.scalars().all()
         if data.room_id not in rooms_ids_to_book:
-            raise Exception
+            raise HTTPException(status_code=500)
         return await self.add(data)
 
