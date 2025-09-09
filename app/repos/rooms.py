@@ -36,7 +36,7 @@ class RoomsRepos(BaseRepository):
             .filter(RoomsOrm.id.in_(rooms_id))
         )
         result = await self.session.execute(query)
-        return [RoomWithRels.model_validate(model) for model in result.scalars().all()]
+        return [self.mapper.map_to_domain_entity(model) for model in result.scalars().all()]
 
     async def get_one_or_none(self, **filter_by):
         query = (select(self.model)
@@ -46,4 +46,4 @@ class RoomsRepos(BaseRepository):
         model = result.scalars().one_or_none()
         if model is None:
             return None
-        return RoomWithRels.model_validate(model)
+        return self.mapper.map_to_domain_entity(model)
